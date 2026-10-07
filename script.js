@@ -1,61 +1,136 @@
-var xJager = 50;
-var yJager = 50;
-var xProoi = 800;
-var yProoi = 175;
+var raster = {
+  aantalRijen: 6,
+  aantalKolommen: 9,
+  celGrootte: null,
+
+  berekenCelGrootte() {
+    this.celGrootte = canvas.width/this.aantalKolommen;
+  },
+  teken() {
+    push();
+    noFill();
+    stroke('grey');
+    for (rij=0;rij<this.aantalRijen;rij++) {
+      for (kolom=0;kolom<this.aantalKolommen;kolom++) {
+        rect(kolom*this.celGrootte,rij*this.celGrootte,this.celGrootte,this.celGrootte);
+      }
+    }
+    pop();
+  }
+}
+
+class Jos {
+  constructor() {
+    this.x = 400;
+    this.y = 300;
+    this.animatie = [];
+    this.frameNummer =  3;
+    this.stapGrootte = null;
+    this.gehaald = false;
+  }
+
+  beweeg() {
+    if (keyIsDown(LEFT_ARROW)) {
+      this.x -= this.stapGrootte;
+      this.frameNummer = 2;
+    }
+    if (keyIsDown(RIGHT_ARROW)) {
+      this.x += this.stapGrootte;
+      this.frameNummer = 1;
+    }
+    if (keyIsDown(UP_ARROW)) {
+      this.y -= this.stapGrootte;
+      this.frameNummer = 4;
+    }
+    if (keyIsDown(DOWN_ARROW)) {
+      this.y += this.stapGrootte;
+      this.frameNummer = 5;
+    }
+
+    this.x = constrain(this.x,0,canvas.width);
+    this.y = constrain(this.y,0,canvas.height - raster.celGrootte);
+
+    if (this.x == canvas.width) {
+      this.gehaald = true;
+    }
+  }
+
+  wordtGeraakt(vijand) {
+    if (this.x == vijand.x && this.y == vijand.y) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  toon() {
+    image(this.animatie[this.frameNummer],this.x,this.y,raster.celGrootte,raster.celGrootte);
+  }
+}
+
+class Vijand {
+  constructor(x,y) {
+    this.x = x;
+    this.y = y;
+    this.sprite = null;
+    this.stapGrootte = null;
+  }
+
+  beweeg() {
+    this.x += floor(random(-1,2))*this.stapGrootte;
+    this.y += floor(random(-1,2))*this.stapGrootte;
+
+    this.x = constrain(this.x,0,canvas.width - raster.celGrootte);
+    this.y = constrain(this.y,0,canvas.height - raster.celGrootte);
+  }
+
+  toon() {
+    image(this.sprite,this.x,this.y,raster.celGrootte,raster.celGrootte);
+  }
+}
+
+function preload() {
+  brug = loadImage("images/backgrounds/dame_op_brug_1800.jpg");
+}
 
 function setup() {
-  canvas = createCanvas(1000,400);
+  canvas = createCanvas(900,600);
   canvas.parent();
+  frameRate(10);
   textFont("Verdana");
-  textSize(140);
-  noStroke();
-  frameRate(50);
+  textSize(90);
+  raster.berekenCelGrootte();
+
+  eve = new Jos();
+  eve.stapGrootte = 1*raster.celGrootte;
+  for (var b = 0;b < 6;b++) {
+    frameEve = loadImage("images/sprites/Eve100px/Eve_" + b + ".png");
+    eve.animatie.push(frameEve);
+  }
+
+  alice = new Vijand(700,200);
+  alice.stapGrootte = 1*eve.stapGrootte;
+  alice.sprite = loadImage("images/sprites/Alice100px/Alice.png");
+
 }
 
 function draw() {
-  background('olive');
-  if (keyIsDown(LEFT_ARROW)) {
-    xJager -= 5;
-  }
-  if (keyIsDown(RIGHT_ARROW)) {
-    xJager += 5;
-  }
-  if (keyIsDown(UP_ARROW)) {
-    yJager -= 5;
-  }
-  if (keyIsDown(DOWN_ARROW)) {
-    yJager += 5;
-  }
-  if (keyIsDown(65)) {
-    xProoi -= 5;
-  }
-  if (keyIsDown(68)) {
-    xProoi += 5;
-  }
-  if (keyIsDown(87)) {
-    yProoi -= 5;
-  }
-  if (keyIsDown(83)) {
-    yProoi += 5;
+  background(brug);
+  raster.teken();
+  eve.beweeg();
+  alice.beweeg();
+  eve.toon();
+  alice.toon();
+
+  if (eve.wordtGeraakt(alice)) {
+    noLoop();
   }
 
-  xJager = constrain(xJager,0,width - 100);
-  yJager = constrain(yJager,0,height - 100);
-
-  if (xJager >= 700 && xJager <= 875 && yJager >= 75 && yJager <= 225) {
-    fill('chartreuse');
+  if (eve.gehaald) {
+    background('green');
+    fill('white');
+    text("Je hebt gewonnen!",30,300);
+    noLoop();
   }
-  else {
-    fill('darkkhaki');
-  }
-  rect(xProoi,yProoi,75,50);
-  fill('moccasin');
-  rect(xJager,yJager,100,100);   
-}
-
-function eindScherm() {
-  background('white');
-  fill('black');
-  text("GEVANGEN!",75,250);
-  noLoop();
 }
