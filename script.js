@@ -99,14 +99,23 @@ class Raket {
     this.x = x;
     this.y = y;
     this.sprite = null;
-    this.stapGrootte = 0;
+    this.stapGrootte = 2;
+    this.richting = -1
   }
 
   beweeg() {
-    this.y -= this.stapGrootte;
+    this.y += this.stapGrootte * this.richting;
 
-    this.x = constrain(this.x,0,canvas.width - raster.celGrootte);
-    this.y = constrain(this.y,0,canvas.height - raster.celGrootte);
+    if (this.y <= 0) {
+      this.y = 0;
+      this.richting = 1;
+    } else if (this.y >= canvas.height - raster.celGrootte) {
+      this.y = canvas.height - raster.celGrootte;
+      this.richting = -1;
+    }
+
+    this.x = constrain(this.x, 0, canvas.width - raster.celGrootte);
+    this.y = constrain(this.y, 0, canvas.height - raster.celGrootte);
   }
 
   toon() {
@@ -155,6 +164,14 @@ function setup() {
   kleine.stapGrootte = eve.stapGrootte;
   kleine.sprite = raketSprite;
 
+  grote = new Raket(600,700);
+  grote.stapGrootte = eve.stapGrootte;
+  grote.sprite = raketSprite;
+
+  raketje = new Raket(200,100);
+  raketje.stapGrootte = eve.stapGrootte;
+  raketje.sprite = raketSprite;
+
 }
 
 function draw() {
@@ -165,13 +182,17 @@ function draw() {
   bob.beweeg();
   cindy.beweeg();
   kleine.beweeg();
+  grote.beweeg();
+  raketje.beweeg();
   eve.toon();
   alice.toon();
   bob.toon();
   kleine.toon();
   cindy.toon();
+  grote.toon();
+  raketje.toon();
 
-  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine)) {
+  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine) || eve.wordtGeraakt(grote) || eve.wordtGeraakt(raketje)) {
     noLoop();
   }
 
