@@ -1,7 +1,7 @@
 class Raster {
   constructor(r,k) {
-    this.aantalRijen = r;
-    this.aantalKolommen = k;
+    this.aantalRijen = 12;
+    this.aantalKolommen = 18;
     this.celGrootte = null;
   }
 
@@ -80,6 +80,7 @@ class Vijand {
     this.stapGrootte = null;
   }
 
+
   beweeg() {
     this.x += floor(random(-1,2))*this.stapGrootte;
     this.y += floor(random(-1,2))*this.stapGrootte;
@@ -93,8 +94,31 @@ class Vijand {
   }
 }
 
+class Raket {
+  constructor(x,y) {
+    this.x = x;
+    this.y = y;
+    this.sprite = null;
+    this.stapGrootte = 0;
+  }
+
+  beweeg() {
+    this.y -= this.stapGrootte;
+
+    this.x = constrain(this.x,0,canvas.width - raster.celGrootte);
+    this.y = constrain(this.y,0,canvas.height - raster.celGrootte);
+  }
+
+  toon() {
+    image(this.sprite,this.x,this.y,raster.celGrootte,raster.celGrootte);
+  }
+}
+
+let raketSprite;
+
 function preload() {
   brug = loadImage("images/backgrounds/dame_op_brug_1800.jpg");
+  raketSprite = loadImage("images/sprites/Raket.png");
 }
 
 function setup() {
@@ -126,6 +150,11 @@ function setup() {
   cindy = new Vijand(600,200);
   cindy.stapGrootte = 1*eve.stapGrootte;
   cindy.sprite = loadImage("images/sprites/Alice100px/Alice.png")
+
+  kleine = new Raket(700,400);
+  kleine.stapGrootte = eve.stapGrootte;
+  kleine.sprite = raketSprite;
+
 }
 
 function draw() {
@@ -135,13 +164,14 @@ function draw() {
   alice.beweeg();
   bob.beweeg();
   cindy.beweeg();
+  kleine.beweeg();
   eve.toon();
   alice.toon();
   bob.toon();
-  
+  kleine.toon();
   cindy.toon();
 
-  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy)) {
+  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine)) {
     noLoop();
   }
 
@@ -152,3 +182,6 @@ function draw() {
     noLoop();
   }
 }
+
+
+
