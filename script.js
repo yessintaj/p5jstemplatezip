@@ -24,7 +24,7 @@ class Raster {
 
 class Jos {
   constructor() {
-    this.x = 400;
+    this.x = 0;
     this.y = 300;
     this.animatie = [];
     this.frameNummer =  3;
@@ -58,13 +58,21 @@ class Jos {
     }
   }
 
+
   wordtGeraakt(vijand) {
-    if (this.x == vijand.x && this.y == vijand.y) {
+    let afstandX = abs(this.x - vijand.x);
+    let afstandY = abs(this.y - vijand.y);
+
+    if (
+      afstandX < raster.celGrootte &&
+      afstandY < raster.celGrootte
+    ) {
       return true;
     }
-    else {
-      return false;
-    }
+    else{
+    return false;
+  }
+
   }
 
   toon() {
@@ -137,8 +145,45 @@ class Raket {
   }
 }
 
+class Pingpongbal {
+  constructor() {
+    this.x = 450;
+    this.y = 250;
+    this.snelheidX = 10;
+    this.snelheidY = 8;
+    this.grootte = 20;
+    this.actief = true;
+  }
+
+  beweeg() {
+    this.x += this.snelheidX;
+    this.y += this.snelheidY;
+
+    if (this.x <= 0 || this.x >= canvas.width) {
+      this.snelheidX *= -1;
+    }
+
+    if (this.y <= 0 || this.y >= canvas.height) {
+      this.snelheidY *= -1;
+    }
+  }
+
+  toon() {
+    if (this.actief) {
+      fill('white');
+      stroke('black');
+      circle(this.x, this.y, this.grootte);
+      noStroke();
+    }
+  }
+  }
 
 let raketSprite;
+let levens = 5;
+let wasGeraakt = false;
+let bal;
+let extraLevenGeraakt = false;
+
 
 function preload() {
   brug = loadImage("images/backgrounds/dame_op_brug_1800.jpg");
@@ -199,6 +244,8 @@ function setup() {
   );
   raketje.sprite = raketSprite;
 
+  bal = new Pingpongbal();
+
 
 }
 
@@ -212,6 +259,7 @@ function draw() {
   kleine.beweeg();
   grote.beweeg();
   raketje.beweeg();
+  bal.beweeg();
   eve.toon();
   alice.toon();
   bob.toon();
@@ -219,21 +267,47 @@ function draw() {
   cindy.toon();
   grote.toon();
   raketje.toon();
+  bal.toon();
 
-  if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine) || eve.wordtGeraakt(grote) || eve.wordtGeraakt(raketje)) {
+
+  fill('black');
+  textSize(20);
+  text("Levens: " + levens,10,25);
+
+  if (bal.actief && dist(
+    eve.x + raster.celGrootte / 2,
+    eve.y + raster.celGrootte / 2,
+    bal.x,
+    bal.y
+  ) < raster.celGrootte / 2 + bal.grootte / 2) {
+    levens++;
+    bal.actief = false;
+  }
+
+
+  let geraakt = (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine) || eve.wordtGeraakt(grote) || eve.wordtGeraakt(raketje)) 
+    if (geraakt && !wasGeraakt) {
+      levens--;
+      eve.x = 0;
+      eve.y = 300;
+    }
+
+    wasGeraakt = geraakt;
+
+  if (levens <= 0) {
     background('red')
     fill('white')
-    text("Ééén je bent dood",30,300)
+    textsize(90);
+    text("Eeen je bent dood",30,300)
     noLoop();
+    return;
   }
 
   if (eve.gehaald) {
     background('green');
     fill('white');
+    textsize(50)
     text("Je hebt gewonnen!",30,300);
     noLoop();
   }
 }
-
-
-
