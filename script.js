@@ -13,6 +13,7 @@ class Raster {
     push();
     noFill();
     stroke('grey');
+    StrokeWeight(1);
     for (var rij = 0;rij < this.aantalRijen;rij++) {
       for (var kolom = 0;kolom < this.aantalKolommen;kolom++) {
         rect(kolom*this.celGrootte,rij*this.celGrootte,this.celGrootte,this.celGrootte);
@@ -256,10 +257,16 @@ function setup() {
 
 function draw() {
   if (
-    mouseX <= 5 ||
-    mouseX >= canvas.width - 5 ||
-    mouseY <= 5 ||
-    mouseY >= canvas.height - 5
+    mouseX >= 0 &&
+    mouseX <= canvas.width &&
+    mouseY >= 0 &&
+    mouseY <= canvas.height &&
+    (
+      mouseX <= 5 ||
+      mouseX >= canvas.width - 5 ||
+      mouseY <= 5 ||
+      mouseY >= canvas.height - 5
+    )
   ) {
     background('lightblue');
   } else {
