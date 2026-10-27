@@ -297,8 +297,8 @@ function draw() {
   if (levens <= 0) {
     background('red')
     fill('white')
-    textsize(90);
-    text("Eeen je bent dood",30,300)
+    textSize(90);
+    text("Eeen je bent dood",60,300)
     noLoop();
     return;
   }
@@ -306,8 +306,8 @@ function draw() {
   if (eve.gehaald) {
     background('green');
     fill('white');
-    textsize(50)
-    text("Je hebt gewonnen!",30,300);
+    textSize(50)
+    text("Je hebt gewonnen!",60,300);
     noLoop();
   }
 }
