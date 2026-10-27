@@ -94,34 +94,49 @@ class Vijand {
   }
 }
 
+
 class Raket {
-  constructor(x,y) {
+  constructor(x, y, snelheidOmhoog) {
     this.x = x;
     this.y = y;
     this.sprite = null;
-    this.stapGrootte = 2;
-    this.richting = -1
+    this.snelheidOmhoog = snelheidOmhoog;
+    this.snelheidY = -snelheidOmhoog;
+    this.zwaartekracht = 0.12;
   }
 
   beweeg() {
-    this.y += this.stapGrootte * this.richting;
+    this.y += this.snelheidY;
+    this.snelheidY += this.zwaartekracht;
 
     if (this.y <= 0) {
       this.y = 0;
-      this.richting = 1;
-    } else if (this.y >= canvas.height - raster.celGrootte) {
-      this.y = canvas.height - raster.celGrootte;
-      this.richting = -1;
+      this.snelheidY = 0.5;
     }
 
-    this.x = constrain(this.x, 0, canvas.width - raster.celGrootte);
-    this.y = constrain(this.y, 0, canvas.height - raster.celGrootte);
+    if (this.y >= canvas.height - raster.celGrootte) {
+      this.y = canvas.height - raster.celGrootte;
+      this.snelheidY = -this.snelheidOmhoog;
+    }
+
+    this.y = constrain(
+      this.y,
+      0,
+      canvas.height - raster.celGrootte
+    );
   }
 
   toon() {
-    image(this.sprite,this.x,this.y,raster.celGrootte,raster.celGrootte);
+    image(
+      this.sprite,
+      this.x,
+      this.y,
+      raster.celGrootte,
+      raster.celGrootte
+    );
   }
 }
+
 
 let raketSprite;
 
@@ -160,17 +175,30 @@ function setup() {
   cindy.stapGrootte = 1*eve.stapGrootte;
   cindy.sprite = loadImage("images/sprites/Alice100px/Alice.png")
 
-  kleine = new Raket(700,400);
-  kleine.stapGrootte = eve.stapGrootte;
+
+  kleine = new Raket(
+    12 * raster.celGrootte,
+    random(0, canvas.height - raster.celGrootte),
+    9
+  );
   kleine.sprite = raketSprite;
 
-  grote = new Raket(600,700);
-  grote.stapGrootte = eve.stapGrootte;
+  
+  grote = new Raket(
+    14 * raster.celGrootte,
+    random(0, canvas.height - raster.celGrootte),
+    11
+  );
   grote.sprite = raketSprite;
 
-  raketje = new Raket(200,100);
-  raketje.stapGrootte = eve.stapGrootte;
+  
+  raketje = new Raket(
+    16 * raster.celGrootte,
+    random(0, canvas.height - raster.celGrootte),
+    13
+  );
   raketje.sprite = raketSprite;
+
 
 }
 
@@ -193,6 +221,9 @@ function draw() {
   raketje.toon();
 
   if (eve.wordtGeraakt(alice) || eve.wordtGeraakt(bob) || eve.wordtGeraakt(cindy) ||               eve.wordtGeraakt(kleine) || eve.wordtGeraakt(grote) || eve.wordtGeraakt(raketje)) {
+    background('red')
+    fill('white')
+    text("Ééén je bent dood",30,300)
     noLoop();
   }
 
