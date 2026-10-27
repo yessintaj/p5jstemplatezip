@@ -18,6 +18,11 @@ class Raster {
         rect(kolom*this.celGrootte,rij*this.celGrootte,this.celGrootte,this.celGrootte);
       }
     }
+    stroke('blue');
+    StrokeWeight(5);
+    noFill();
+    rect(0,0,canvas.width, canvas.height);
+    
     pop();
   }
 }
@@ -250,6 +255,14 @@ function setup() {
 }
 
 function draw() {
+  if (
+    mouseX <= 5 ||
+    mouseX >= canvas.width - 5 ||
+    mouseY <= 5 ||
+    mouseY >= canvas.height - 5
+  ) {
+    background('lightblue');
+  } else {
   background(brug);
   raster.teken();
   eve.beweeg();
