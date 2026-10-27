@@ -13,16 +13,16 @@ class Raster {
     push();
     noFill();
     stroke('grey');
-    StrokeWeight(1);
+    strokeWeight(1);
     for (var rij = 0;rij < this.aantalRijen;rij++) {
       for (var kolom = 0;kolom < this.aantalKolommen;kolom++) {
         rect(kolom*this.celGrootte,rij*this.celGrootte,this.celGrootte,this.celGrootte);
       }
     }
     stroke('blue');
-    StrokeWeight(5);
+    strokeWeight(100);
     noFill();
-    rect(0,0,canvas.width, canvas.height);
+    rect(0, 0, canvas.width, canvas.height);
     
     pop();
   }
@@ -189,6 +189,12 @@ let levens = 5;
 let wasGeraakt = false;
 let bal;
 let extraLevenGeraakt = false;
+let level = 1;
+let doelX = 0;
+let levelOvergang = false;
+let overgangTijd = 0;
+let pauze = false;
+let pauzeStart = 0;
 
 
 function preload() {
@@ -228,50 +234,124 @@ function setup() {
 
 
   kleine = new Raket(
-    12 * raster.celGrootte,
+    random(canvas.width / 2, canvas.width - raster.celGrootte),
     random(0, canvas.height - raster.celGrootte),
     9
   );
   kleine.sprite = raketSprite;
 
-  
   grote = new Raket(
-    14 * raster.celGrootte,
+    random(canvas.width / 2, canvas.width - raster.celGrootte),
     random(0, canvas.height - raster.celGrootte),
-    11
+    16
   );
   grote.sprite = raketSprite;
 
-  
   raketje = new Raket(
-    16 * raster.celGrootte,
+    random(canvas.width / 2, canvas.width - raster.celGrootte),
     random(0, canvas.height - raster.celGrootte),
-    13
+    20
   );
   raketje.sprite = raketSprite;
-
+  
   bal = new Pingpongbal();
 
 
 }
 
+
+function volgendLevel() {
+  if (level < 5) {
+    level++;
+    pauze = true;
+    pauzeStart = millis();
+
+    eve.x = 0;
+    eve.y = 300;
+    eve.gehaald = false;
+
+    alice.stapGrootte += 1;
+    bob.stapGrootte += 1;
+    cindy.stapGrootte += 1;
+
+    kleine.snelheidOmhoog += 1;
+    grote.snelheidOmhoog += 2;
+    raketje.snelheidOmhoog += 3;
+
+    kleine.snelheidY = -kleine.snelheidOmhoog;
+    grote.snelheidY = -grote.snelheidOmhoog;
+    raketje.snelheidY = -raketje.snelheidOmhoog;
+  } else {
+    pauze = true;
+    pauzeStart = millis();
+    level = 6;
+  }
+}
+
+
 function draw() {
+
+  if (pauze) {
+    background('green');
+    fill('black');
+    textSize(40);
+    textAlign(CENTER, CENTER);
+
+    if (level <= 5) {
+      text("Level " + (level - 1) + " gehaald", width / 2, height / 2);
+    } else {
+      text("Je hebt alle levels gehaald!", width / 2, height / 2);
+    }
+
+    if (millis() - pauzeStart >= 2000) {
+      if (level == 6) {
+        noLoop();
+      } else {
+        pauze = false;
+      }
+    }
+
+    return;
+  }
+
   if (
     mouseX >= 0 &&
     mouseX <= canvas.width &&
     mouseY >= 0 &&
     mouseY <= canvas.height &&
     (
-      mouseX <= 5 ||
-      mouseX >= canvas.width - 5 ||
-      mouseY <= 5 ||
-      mouseY >= canvas.height - 5
+      mouseX <= 50 ||
+      mouseX >= canvas.width - 50 ||
+      mouseY <= 50 ||
+      mouseY >= canvas.height - 50
     )
   ) {
     background('lightblue');
   } else {
-  background(brug);
+    background(brug);
+  }
   raster.teken();
+  push();
+  fill('orange');
+  stroke('darkorange');
+  strokeWeight(1);
+  rectMode(CORNER);
+
+  let aantalLagen = 5;
+  let breedte = 30;
+  let hoogte = 20;
+
+  let startX = canvas.width / 2 - (aantalLagen * breedte) / 2;
+  let startY = canvas.height / 2 - (aantalLagen * hoogte) / 2;
+
+  tekenPiramide(
+    aantalLagen,
+    startX,
+    startY,
+    breedte,
+    hoogte
+  );
+  pop();
   eve.beweeg();
   alice.beweeg();
   bob.beweeg();
@@ -317,17 +397,33 @@ function draw() {
   if (levens <= 0) {
     background('red')
     fill('white')
-    textSize(90);
-    text("Eeen je bent dood",60,300)
+    textSize(50);
+    textAlign(CENTER, CENTER);
+    text("Eeen je bent dood",width / 2, height / 2);
     noLoop();
     return;
   }
 
   if (eve.gehaald) {
-    background('green');
-    fill('white');
-    textSize(50)
-    text("Je hebt gewonnen!",60,300);
-    noLoop();
+    volgendLevel();
+  }
+
+  fill('white');
+  textSize(20);
+  text("Level: " + level, 10, 50);
+}
+function tekenPiramide(n, x, y, breedte, hoogte) {
+  if (n > 0) {
+    for (let i = 0; i < n; i++) {
+      rect(x + i * breedte, y, breedte, hoogte);
+    }
+
+    tekenPiramide(
+      n - 1,
+      x + breedte / 2,
+      y + hoogte,
+      breedte,
+      hoogte
+    );
   }
 }
